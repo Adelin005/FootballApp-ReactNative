@@ -15,17 +15,8 @@ export default function HomeTabScreen() {
   const router = useRouter();
   const { t } = useLanguage();
 
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      if (typeof window !== 'undefined' && window.location) {
-        window.location.href = '/login';
-      } else {
-        router.replace('/login');
-      }
-    } catch (error: any) {
-      console.error('Sign Out Error:', error.message);
-    }
+  const navigateToProfile = () => {
+    router.push('/profile-info');
   };
 
   return (
@@ -51,7 +42,7 @@ export default function HomeTabScreen() {
 
         <Text style={styles.headerTitle}>{t('home_title')}</Text>
 
-        <TouchableOpacity style={styles.iconButton} onPress={handleSignOut}>
+        <TouchableOpacity style={styles.iconButton} onPress={navigateToProfile}>
           <Ionicons name="person-circle-outline" size={28} color="#E2E8F0" />
         </TouchableOpacity>
       </View>

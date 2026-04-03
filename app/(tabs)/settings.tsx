@@ -79,23 +79,15 @@ export default function SettingsScreen() {
   };
 
   const handleLanguagePress = () => {
-    Alert.alert(
-      t('settings_change_lang_title'),
-      t('settings_change_lang_msg'),
-      [
-        { text: t('settings_cancel'), style: 'cancel' },
-        { 
-          text: t('settings_open_settings'), 
-          onPress: () => {
-            if (Platform.OS === 'ios' || Platform.OS === 'android') {
-              Linking.openSettings();
-            } else {
-              alert(t('settings_change_lang_msg'));
-            }
-          } 
-        }
-      ]
-    );
+    if (Platform.OS === 'android') {
+      try {
+        Linking.sendIntent('android.settings.LOCALE_SETTINGS');
+      } catch (e) {
+        Linking.openSettings();
+      }
+    } else {
+      Linking.openSettings();
+    }
   };
 
   const handleLogOut = async () => {
