@@ -6,17 +6,18 @@ import React from 'react';
 import { Dimensions, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { auth } from '../../src/firebaseConfig';
+import { useLanguage } from '../../src/context/LanguageContext';
 
 const { height } = Dimensions.get('window');
 
 export default function HomeTabScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { t } = useLanguage();
 
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      // Let the gatekeeper handle it or explicitly replace here:
       if (typeof window !== 'undefined' && window.location) {
         window.location.href = '/login';
       } else {
@@ -48,7 +49,7 @@ export default function HomeTabScreen() {
       <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <View style={[styles.iconButton, { width: 36 }]} />
 
-        <Text style={styles.headerTitle}>Football Live</Text>
+        <Text style={styles.headerTitle}>{t('home_title')}</Text>
 
         <TouchableOpacity style={styles.iconButton} onPress={handleSignOut}>
           <Ionicons name="person-circle-outline" size={28} color="#E2E8F0" />
@@ -58,22 +59,22 @@ export default function HomeTabScreen() {
       {/* Main Content */}
       <View style={styles.content}>
         <Text style={styles.mainTitle}>
-          Experience{'\n'}Football{'\n'}Like Never Before
+          {t('home_main_title')}
         </Text>
 
         <Text style={styles.subtitle}>
-          Follow your favorite teams and leagues{'\n'}in real-time with live updates.
+          {t('home_subtitle')}
         </Text>
 
         <TouchableOpacity style={styles.exploreButton} onPress={() => router.push('/leagues')}>
-          <Text style={styles.exploreButtonText}>Explore Leagues</Text>
+          <Text style={styles.exploreButtonText}>{t('home_explore')}</Text>
         </TouchableOpacity>
       </View>
 
       {/* Footer Text */}
       <View style={[styles.footer, { paddingBottom: 100 }]}>
         <Text style={styles.footerText}>
-          FEATURING MAJOR LEAGUES FROM AROUND THE WORLD
+          {t('home_footer')}
         </Text>
       </View>
     </View>

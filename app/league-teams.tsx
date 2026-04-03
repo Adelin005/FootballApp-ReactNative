@@ -17,11 +17,13 @@ import {
   FavoriteTeam,
 } from '../src/services/favoritesService';
 import { useTheme } from '../src/context/ThemeContext';
+import { useLanguage } from '../src/context/LanguageContext';
 
 export default function LeagueTeamsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors, isDarkMode } = useTheme();
+  const { t } = useLanguage();
   
   const { leagueId, leagueName } = useLocalSearchParams<{
     leagueId: string;
@@ -150,19 +152,19 @@ export default function LeagueTeamsScreen() {
         {/* Stats */}
         <View style={styles.statsContainer}>
           <View style={styles.statRow}>
-            <Text style={[styles.statLabel, { color: colors.textDim }]}>W</Text>
+            <Text style={[styles.statLabel, { color: colors.textDim }]}>{t('teams_stat_w')}</Text>
             <Text style={[styles.statValue, { color: colors.text }]}>{wins}</Text>
           </View>
           <View style={styles.statRow}>
-            <Text style={[styles.statLabel, { color: colors.textDim }]}>D</Text>
+            <Text style={[styles.statLabel, { color: colors.textDim }]}>{t('teams_stat_d')}</Text>
             <Text style={[styles.statValue, { color: colors.text }]}>{draws}</Text>
           </View>
           <View style={styles.statRow}>
-            <Text style={[styles.statLabel, { color: colors.textDim }]}>L</Text>
+            <Text style={[styles.statLabel, { color: colors.textDim }]}>{t('teams_stat_l')}</Text>
             <Text style={[styles.statValue, { color: colors.text }]}>{losses}</Text>
           </View>
           <View style={[styles.statRow, styles.pointsContainer]}>
-            <Text style={[styles.statLabel, { color: colors.textDim }]}>Pts</Text>
+            <Text style={[styles.statLabel, { color: colors.textDim }]}>{t('teams_stat_pts')}</Text>
             <Text style={[styles.pointsValue, { color: colors.primary }]}>{points}</Text>
           </View>
         </View>
@@ -187,7 +189,7 @@ export default function LeagueTeamsScreen() {
     return (
       <View style={[styles.centerContainer, { backgroundColor: colors.background, paddingTop: insets.top }]}>
         <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={[styles.loadingText, { color: colors.textDim }]}>Loading teams...</Text>
+        <Text style={[styles.loadingText, { color: colors.textDim }]}>{t('teams_loading')}</Text>
       </View>
     );
   }
@@ -201,10 +203,10 @@ export default function LeagueTeamsScreen() {
         </TouchableOpacity>
         <View style={styles.headerTextContainer}>
           <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
-            {leagueName || 'Teams'}
+            {leagueName || t('teams_title')}
           </Text>
           <Text style={[styles.headerSubtitle, { color: colors.textDim }]}>
-            {teams.length} team{teams.length !== 1 ? 's' : ''} · Standings
+            {teams.length} {teams.length !== 1 ? t('teams_teams') : t('teams_team')} · {t('teams_standings')}
           </Text>
         </View>
         <Ionicons name="football" size={22} color={colors.primary} />
@@ -214,13 +216,13 @@ export default function LeagueTeamsScreen() {
       {error ? (
         <View style={styles.errorContainer}>
           <Ionicons name="cloud-offline" size={48} color={colors.textDim} />
-          <Text style={[styles.errorTitle, { color: colors.text }]}>Could not load teams</Text>
+          <Text style={[styles.errorTitle, { color: colors.text }]}>{t('teams_error_title')}</Text>
           <Text style={[styles.errorText, { color: colors.textDim }]}>
-            Check your internet connection and try again
+            {t('teams_error_text')}
           </Text>
           <TouchableOpacity style={[styles.retryButton, { backgroundColor: colors.primary }]} onPress={loadTeams}>
             <Ionicons name="refresh" size={18} color={colors.white} />
-            <Text style={[styles.retryText, { color: colors.white }]}>Retry</Text>
+            <Text style={[styles.retryText, { color: colors.white }]}>{t('retry')}</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -233,9 +235,9 @@ export default function LeagueTeamsScreen() {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Ionicons name="football-outline" size={48} color={colors.textDim} />
-              <Text style={[styles.emptyTitle, { color: colors.text }]}>No teams found</Text>
+              <Text style={[styles.emptyTitle, { color: colors.text }]}>{t('teams_no_teams_title')}</Text>
               <Text style={[styles.emptyText, { color: colors.textDim }]}>
-                There are no teams available for this league
+                {t('teams_no_teams_text')}
               </Text>
             </View>
           }

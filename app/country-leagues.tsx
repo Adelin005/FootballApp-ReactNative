@@ -12,11 +12,13 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getLeaguesByCountry } from '../src/services/footballApi';
 import { useTheme } from '../src/context/ThemeContext';
+import { useLanguage } from '../src/context/LanguageContext';
 
 export default function CountryLeaguesScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors, isDarkMode } = useTheme();
+  const { t } = useLanguage();
   const { countryCode, countryName } = useLocalSearchParams<{
     countryCode: string;
     countryName: string;
@@ -78,7 +80,7 @@ export default function CountryLeaguesScreen() {
           {item.name}
         </Text>
         {item.important && (
-          <Text style={[styles.importantBadge, { color: colors.accent }]}>⭐ Major League</Text>
+          <Text style={[styles.importantBadge, { color: colors.accent }]}>{t('country_major')}</Text>
         )}
       </View>
       <Ionicons name="chevron-forward" size={20} color={colors.textDim} />
@@ -89,7 +91,7 @@ export default function CountryLeaguesScreen() {
     return (
       <View style={[styles.centerContainer, { backgroundColor: colors.background, paddingTop: insets.top }]}>
         <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={[styles.loadingText, { color: colors.textDim }]}>Loading leagues...</Text>
+        <Text style={[styles.loadingText, { color: colors.textDim }]}>{t('country_loading')}</Text>
       </View>
     );
   }
@@ -103,10 +105,10 @@ export default function CountryLeaguesScreen() {
         </TouchableOpacity>
         <View style={styles.headerTextContainer}>
           <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
-            {countryName || 'Leagues'}
+            {countryName || t('country_leagues_label')}
           </Text>
           <Text style={[styles.headerSubtitle, { color: colors.textDim }]}>
-            {leagues.length} league{leagues.length !== 1 ? 's' : ''} available
+            {leagues.length} {leagues.length !== 1 ? t('leagues_leagues') : t('leagues_league')} {t('country_available')}
           </Text>
         </View>
         <Ionicons name="trophy" size={22} color={colors.primary} />
@@ -116,13 +118,13 @@ export default function CountryLeaguesScreen() {
       {error ? (
         <View style={styles.errorContainer}>
           <Ionicons name="cloud-offline" size={48} color={colors.textDim} />
-          <Text style={[styles.errorTitle, { color: colors.text }]}>Could not load leagues</Text>
+          <Text style={[styles.errorTitle, { color: colors.text }]}>{t('country_error_title')}</Text>
           <Text style={[styles.errorText, { color: colors.textDim }]}>
-            Check your internet connection and try again
+            {t('country_error_text')}
           </Text>
           <TouchableOpacity style={[styles.retryButton, { backgroundColor: colors.primary }]} onPress={loadLeagues}>
             <Ionicons name="refresh" size={18} color={colors.white} />
-            <Text style={[styles.retryText, { color: colors.white }]}>Retry</Text>
+            <Text style={[styles.retryText, { color: colors.white }]}>{t('retry')}</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -135,9 +137,9 @@ export default function CountryLeaguesScreen() {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Ionicons name="trophy-outline" size={48} color={colors.textDim} />
-              <Text style={[styles.emptyTitle, { color: colors.text }]}>No leagues found</Text>
+              <Text style={[styles.emptyTitle, { color: colors.text }]}>{t('country_no_leagues_title')}</Text>
               <Text style={[styles.emptyText, { color: colors.textDim }]}>
-                There are no leagues available for {countryName}
+                {t('country_no_leagues_text')} {countryName}
               </Text>
             </View>
           }

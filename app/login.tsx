@@ -18,6 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { auth } from '../src/firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useLanguage } from '../src/context/LanguageContext';
 
 const { height } = Dimensions.get('window');
 
@@ -28,8 +29,10 @@ const showAlert = (title: string, message: string) => {
     Alert.alert(title, message);
   }
 };
+
 export default function LoginScreen() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -37,7 +40,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      showAlert('Error', 'Please enter email and password');
+      showAlert(t('error'), t('login_error_empty'));
       return;
     }
     setIsLoading(true);
@@ -45,7 +48,7 @@ export default function LoginScreen() {
       await signInWithEmailAndPassword(auth, email, password);
       router.replace('/(tabs)/home');
     } catch (error: any) {
-      showAlert('Login Error', error.message);
+      showAlert(t('login_error_title'), error.message);
     } finally {
       setIsLoading(false);
     }
@@ -81,8 +84,8 @@ export default function LoginScreen() {
           </ImageBackground>
           
           <View style={styles.headerTextContainer}>
-            <Text style={styles.title}>Football App</Text>
-            <Text style={styles.subtitle}>Your ultimate football companion</Text>
+            <Text style={styles.title}>{t('login_title')}</Text>
+            <Text style={styles.subtitle}>{t('login_subtitle')}</Text>
           </View>
         </View>
 
@@ -91,12 +94,12 @@ export default function LoginScreen() {
           
           {/* Email Input */}
           <View style={styles.inputWrapper}>
-            <Text style={styles.label}>Email Address</Text>
+            <Text style={styles.label}>{t('login_email')}</Text>
             <View style={styles.inputContainer}>
               <Ionicons name="mail" size={20} color="#718096" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="name@example.com"
+                placeholder={t('login_email_placeholder')}
                 placeholderTextColor="#718096"
                 value={email}
                 onChangeText={setEmail}
@@ -109,9 +112,9 @@ export default function LoginScreen() {
           {/* Password Input */}
           <View style={styles.inputWrapper}>
             <View style={styles.passwordLabelContainer}>
-              <Text style={styles.label}>Password</Text>
+              <Text style={styles.label}>{t('login_password')}</Text>
               <TouchableOpacity>
-                <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+                <Text style={styles.forgotPasswordText}>{t('login_forgot')}</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.inputContainer}>
@@ -140,12 +143,12 @@ export default function LoginScreen() {
               {isLoading ? (
                 <ActivityIndicator color="#FFFFFF" />
               ) : (
-                <Text style={styles.loginButtonText}>Login</Text>
+                <Text style={styles.loginButtonText}>{t('login_button')}</Text>
               )}
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.createAccountButton} onPress={navigateToRegister} disabled={isLoading}>
-              <Text style={styles.createAccountButtonText}>Create Account</Text>
+              <Text style={styles.createAccountButtonText}>{t('login_create')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -154,10 +157,11 @@ export default function LoginScreen() {
         {/* Footer Text */}
         <View style={styles.footerContainer}>
           <Text style={styles.footerText}>
-            By signing in, you agree to our{' '}
-            <Text style={styles.footerLink}>Terms of{'\n'}Service</Text>
-            {' '}and{' '}
-            <Text style={styles.footerLink}>Privacy Policy</Text>.
+            {t('login_footer')}
+            <Text style={styles.footerLink}>{t('login_terms')}</Text>
+            {t('login_and')}
+            <Text style={styles.footerLink}>{t('login_privacy')}</Text>
+            {t('login_footer_end')}
           </Text>
         </View>
 

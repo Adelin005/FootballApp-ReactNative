@@ -17,11 +17,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { updateProfile, updatePassword, signOut } from 'firebase/auth';
 import { auth } from '../src/firebaseConfig';
 import { useTheme } from '../src/context/ThemeContext';
+import { useLanguage } from '../src/context/LanguageContext';
 
 export default function ProfileInfoScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
+  const { t } = useLanguage();
 
   const [displayName, setDisplayName] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -54,7 +56,7 @@ export default function ProfileInfoScreen() {
     if (!auth.currentUser) return;
     
     if (!displayName.trim()) {
-      showDialog('Error', 'Display name cannot be empty.', true);
+      showDialog(t('error'), t('profile_name_empty'), true);
       return;
     }
 
@@ -64,12 +66,12 @@ export default function ProfileInfoScreen() {
         displayName: displayName.trim(),
       });
       
-      showDialog('Success', 'Profile information updated successfully!', false, () => {
+      showDialog(t('success'), t('profile_updated'), false, () => {
         handleBack();
       });
     } catch (error: any) {
       console.error(error);
-      showDialog('Error', error.message || 'Failed to update profile.', true);
+      showDialog(t('error'), error.message || t('profile_update_fail'), true);
     } finally {
       setLoading(false);
     }
@@ -79,12 +81,12 @@ export default function ProfileInfoScreen() {
     if (!auth.currentUser) return;
 
     if (!newPassword || newPassword.length < 6) {
-      showDialog('Error', 'Password must be at least 6 characters long.', true);
+      showDialog(t('error'), t('profile_pass_short'), true);
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      showDialog('Error', 'Passwords do not match.', true);
+      showDialog(t('error'), t('profile_pass_mismatch'), true);
       return;
     }
 
@@ -94,8 +96,7 @@ export default function ProfileInfoScreen() {
       setNewPassword('');
       setConfirmPassword('');
       
-      // On success, we sign them out to force a fresh login with the new password
-      showDialog('Success', 'Password updated! Please log in again with your new password.', false, async () => {
+      showDialog(t('success'), t('profile_pass_success'), false, async () => {
         try {
           await signOut(auth);
           router.replace('/');
@@ -107,12 +108,12 @@ export default function ProfileInfoScreen() {
       console.error(error);
       if (error.code === 'auth/requires-recent-login') {
         showDialog(
-          'Security Requirement', 
-          'Changing your password requires a recent login. Please log out and log back in, then try again.',
+          t('profile_relogin_title'), 
+          t('profile_relogin_msg'),
           true
         );
       } else {
-        showDialog('Error', error.message || 'Failed to update password.', true);
+        showDialog(t('error'), error.message || t('profile_pass_fail'), true);
       }
     } finally {
       setPasswordLoading(false);
@@ -123,7 +124,6 @@ export default function ProfileInfoScreen() {
     if (router.canGoBack()) {
       router.back();
     } else {
-      // Fallback in case history stack is lost
       router.replace('/(tabs)/settings');
     }
   };
@@ -150,7 +150,7 @@ export default function ProfileInfoScreen() {
             </TouchableOpacity>
             <View style={styles.headerTextContainer}>
               <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
-                Profile Information
+                {t('profile_title')}
               </Text>
             </View>
           </View>
@@ -158,19 +158,19 @@ export default function ProfileInfoScreen() {
           <View style={styles.content}>
             {/* Display Name Section */}
             <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>Personal Details</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('profile_personal')}</Text>
               
-              <Text style={[styles.label, { color: colors.textDim }]}>Email Address (Cannot be changed)</Text>
+              <Text style={[styles.label, { color: colors.textDim }]}>{t('profile_email')}</Text>
               <TextInput
                 style={[styles.input, styles.disabledInput, { backgroundColor: colors.cardLight, color: colors.textDim, borderColor: colors.border }]}
                 value={auth.currentUser?.email || ''}
                 editable={false}
               />
 
-              <Text style={[styles.label, { color: colors.textDim }]}>Display Name</Text>
+              <Text style={[styles.label, { color: colors.textDim }]}>{t('profile_name')}</Text>
               <TextInput
                 style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
-                placeholder="Enter your display name"
+                placeholder={t('profile_name_placeholder')}
                 placeholderTextColor={colors.textDim}
                 value={displayName}
                 onChangeText={setDisplayName}
@@ -184,29 +184,29 @@ export default function ProfileInfoScreen() {
                 {loading ? (
                   <ActivityIndicator color={colors.white} />
                 ) : (
-                  <Text style={[styles.saveButtonText, { color: colors.white }]}>Save Profile</Text>
+                  <Text style={[styles.saveButtonText, { color: colors.white }]}>{t('profile_save')}</Text>
                 )}
               </TouchableOpacity>
             </View>
 
             {/* Password Section */}
             <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border, marginTop: 20 }]}>
-              <Text style={[styles.sectionTitle, { color: colors.text }]}>Security</Text>
+              <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('profile_security')}</Text>
               
-              <Text style={[styles.label, { color: colors.textDim }]}>New Password</Text>
+              <Text style={[styles.label, { color: colors.textDim }]}>{t('profile_new_pass')}</Text>
               <TextInput
                 style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
-                placeholder="Enter new password"
+                placeholder={t('profile_new_pass_placeholder')}
                 placeholderTextColor={colors.textDim}
                 value={newPassword}
                 onChangeText={setNewPassword}
                 secureTextEntry
               />
 
-              <Text style={[styles.label, { color: colors.textDim }]}>Confirm New Password</Text>
+              <Text style={[styles.label, { color: colors.textDim }]}>{t('profile_confirm_pass')}</Text>
               <TextInput
                 style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
-                placeholder="Confirm new password"
+                placeholder={t('profile_confirm_pass_placeholder')}
                 placeholderTextColor={colors.textDim}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
@@ -221,7 +221,7 @@ export default function ProfileInfoScreen() {
                 {passwordLoading ? (
                   <ActivityIndicator color={colors.white} />
                 ) : (
-                  <Text style={[styles.saveButtonText, { color: colors.white }]}>Change Password</Text>
+                  <Text style={[styles.saveButtonText, { color: colors.white }]}>{t('profile_change_pass')}</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -258,7 +258,7 @@ export default function ProfileInfoScreen() {
                 dialogConfig.onConfirm();
               }}
             >
-              <Text style={[styles.modalButtonText, { color: dialogConfig.isError ? colors.text : colors.white }]}>OK</Text>
+              <Text style={[styles.modalButtonText, { color: dialogConfig.isError ? colors.text : colors.white }]}>{t('ok')}</Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -15,11 +15,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getCountries } from '../../src/services/footballApi';
 import { getFlagUrl } from '../../src/utils/footballUtils';
 import { useTheme } from '../../src/context/ThemeContext';
+import { useLanguage } from '../../src/context/LanguageContext';
 
 export default function LeaguesTabScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors, isDarkMode } = useTheme();
+  const { t } = useLanguage();
   
   const [countries, setCountries] = useState<any[]>([]);
   const [filtered, setFiltered] = useState<any[]>([]);
@@ -46,7 +48,6 @@ export default function LeaguesTabScreen() {
     try {
       const data = await getCountries();
       if (Array.isArray(data) && data.length > 0) {
-        // Sort by name and filter out countries with 0 championships
         const sorted = data
           .filter((c: any) => c.championships > 0)
           .sort((a: any, b: any) => a.name.localeCompare(b.name));
@@ -87,7 +88,7 @@ export default function LeaguesTabScreen() {
       <View style={styles.countryInfo}>
         <Text style={[styles.countryName, { color: colors.text }]}>{item.name}</Text>
         <Text style={[styles.countryMeta, { color: colors.textDim }]}>
-          {item.championships} league{item.championships !== 1 ? 's' : ''} · {item.teams} teams
+          {item.championships} {item.championships !== 1 ? t('leagues_leagues') : t('leagues_league')} · {item.teams} {t('leagues_teams')}
         </Text>
       </View>
       <Ionicons name="chevron-forward" size={20} color={colors.textDim} />
@@ -98,7 +99,7 @@ export default function LeaguesTabScreen() {
     return (
       <View style={[styles.centerContainer, { backgroundColor: colors.background, paddingTop: insets.top }]}> 
         <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={[styles.loadingText, { color: colors.textDim }]}>Loading countries...</Text>
+        <Text style={[styles.loadingText, { color: colors.textDim }]}>{t('leagues_loading')}</Text>
       </View>
     );
   }
@@ -108,10 +109,10 @@ export default function LeaguesTabScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Ionicons name="earth" size={24} color={colors.primary} />
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Choose a Country</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>{t('leagues_title')}</Text>
       </View>
       <Text style={[styles.headerSubtitle, { color: colors.textDim }]}>
-        Select a country to explore its football leagues
+        {t('leagues_subtitle')}
       </Text>
 
       {/* Search Bar */}
@@ -119,7 +120,7 @@ export default function LeaguesTabScreen() {
         <Ionicons name="search" size={18} color={colors.textDim} style={styles.searchIcon} />
         <TextInput
           style={[styles.searchInput, { color: colors.text }]}
-          placeholder="Search countries..."
+          placeholder={t('leagues_search')}
           placeholderTextColor={colors.textDim}
           value={search}
           onChangeText={setSearch}
@@ -136,11 +137,11 @@ export default function LeaguesTabScreen() {
       {error ? (
         <View style={styles.errorContainer}>
           <Ionicons name="cloud-offline" size={48} color={colors.textDim} />
-          <Text style={[styles.errorTitle, { color: colors.text }]}>Could not load countries</Text>
-          <Text style={[styles.errorText, { color: colors.textDim }]}>Check your internet connection and try again</Text>
+          <Text style={[styles.errorTitle, { color: colors.text }]}>{t('leagues_error_title')}</Text>
+          <Text style={[styles.errorText, { color: colors.textDim }]}>{t('leagues_error_text')}</Text>
           <TouchableOpacity style={[styles.retryButton, { backgroundColor: colors.primary }]} onPress={loadCountries}>
             <Ionicons name="refresh" size={18} color={colors.white} />
-            <Text style={[styles.retryText, { color: colors.white }]}>Retry</Text>
+            <Text style={[styles.retryText, { color: colors.white }]}>{t('retry')}</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -153,7 +154,7 @@ export default function LeaguesTabScreen() {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Ionicons name="search" size={48} color={colors.textDim} />
-              <Text style={[styles.emptyText, { color: colors.textDim }]}>No countries found for "{search}"</Text>
+              <Text style={[styles.emptyText, { color: colors.textDim }]}>{t('leagues_empty')} "{search}"</Text>
             </View>
           }
         />

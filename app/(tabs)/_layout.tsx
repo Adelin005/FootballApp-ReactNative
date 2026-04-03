@@ -1,7 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useLanguage } from '../../src/context/LanguageContext';
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+  const { t } = useLanguage();
+
   return (
     <Tabs
       screenOptions={{
@@ -10,7 +15,8 @@ export default function TabLayout() {
           backgroundColor: '#0B132B',
           borderTopWidth: 1,
           borderTopColor: '#1A2436',
-          height: 65,
+          height: 65 + insets.bottom,
+          paddingBottom: insets.bottom,
         },
         tabBarActiveTintColor: '#3B82F6',
         tabBarInactiveTintColor: '#94A3B8',
@@ -29,7 +35,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: 'Home',
+          title: t('tab_home'),
           tabBarIcon: ({ color }) => (
             <Ionicons name="home" size={22} color={color} />
           ),
@@ -38,7 +44,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="leagues"
         options={{
-          title: 'Leagues',
+          title: t('tab_leagues'),
           tabBarIcon: ({ color }) => (
             <Ionicons name="trophy" size={22} color={color} />
           ),
@@ -47,7 +53,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="favorites"
         options={{
-          title: 'Favorites',
+          title: t('tab_favorites'),
           tabBarIcon: ({ color }) => (
             <Ionicons name="heart" size={22} color={color} />
           ),
@@ -56,7 +62,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Settings',
+          title: t('tab_settings'),
           tabBarIcon: ({ color }) => (
             <Ionicons name="settings" size={22} color={color} />
           ),

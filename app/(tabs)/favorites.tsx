@@ -17,23 +17,12 @@ import {
   FavoriteTeam,
 } from '../../src/services/favoritesService';
 import { useTheme } from '../../src/context/ThemeContext';
-
-const showAlert = (title: string, message: string, onConfirm: () => void) => {
-  if (Platform.OS === 'web') {
-    if (window.confirm(`${title}: ${message}`)) {
-      onConfirm();
-    }
-  } else {
-    Alert.alert(title, message, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Remove', style: 'destructive', onPress: onConfirm },
-    ]);
-  }
-};
+import { useLanguage } from '../../src/context/LanguageContext';
 
 export default function FavoritesScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDarkMode } = useTheme();
+  const { t } = useLanguage();
   const [favorites, setFavorites] = useState<FavoriteTeam[]>([]);
 
   // Reload favorites every time this tab is focused
@@ -51,14 +40,23 @@ export default function FavoritesScreen() {
   };
 
   const handleRemoveFavorite = (team: FavoriteTeam) => {
-    showAlert(
-      'Remove Favorite',
-      `Remove ${team.teamName} from your favorites?`,
-      async () => {
-        await removeFavorite(team.teamId);
-        setFavorites((prev) => prev.filter((f) => f.teamId !== team.teamId));
+    const message = t('favorites_remove_msg').replace('{name}', team.teamName);
+    
+    if (Platform.OS === 'web') {
+      if (window.confirm(`${t('favorites_remove_title')}: ${message}`)) {
+        removeFavAndUpdate(team);
       }
-    );
+    } else {
+      Alert.alert(t('favorites_remove_title'), message, [
+        { text: t('favorites_cancel'), style: 'cancel' },
+        { text: t('favorites_remove'), style: 'destructive', onPress: () => removeFavAndUpdate(team) },
+      ]);
+    }
+  };
+
+  const removeFavAndUpdate = async (team: FavoriteTeam) => {
+    await removeFavorite(team.teamId);
+    setFavorites((prev) => prev.filter((f) => f.teamId !== team.teamId));
   };
 
   const renderFavoriteItem = ({ item }: { item: FavoriteTeam }) => {
@@ -101,7 +99,7 @@ export default function FavoritesScreen() {
               {item.win != null && (
                 <View style={[styles.statChip, { backgroundColor: colors.cardLight }]}>
                   <Text style={[styles.statChipText, { color: colors.textDim }]}>
-                    {item.win}W {item.draw}D {item.loss}L
+                    {item.win}{t('teams_stat_w')} {item.draw}{t('teams_stat_d')} {item.loss}{t('teams_stat_l')}
                   </Text>
                 </View>
               )}
@@ -148,7 +146,7 @@ export default function FavoritesScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Ionicons name="star" size={24} color={colors.accent} />
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Favorites</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>{t('favorites_title')}</Text>
         {favorites.length > 0 && (
           <View style={[styles.countBadge, { backgroundColor: colors.accent }]}>
             <Text style={[styles.countText, { color: colors.background }]}>{favorites.length}</Text>
@@ -156,14 +154,14 @@ export default function FavoritesScreen() {
         )}
       </View>
       <Text style={[styles.headerSubtitle, { color: colors.textDim }]}>
-        Your favorite teams · Available offline
+        {t('favorites_subtitle')}
       </Text>
 
       {/* Offline banner */}
       <View style={[styles.offlineBanner, isDarkMode ? {} : { backgroundColor: '#DCFCE7', borderWidth: 1, borderColor: '#BBF7D0' }]}>
         <Ionicons name="cloud-done" size={16} color={colors.success} />
         <Text style={[styles.offlineBannerText, isDarkMode ? {} : { color: '#166534' }]}>
-          Data stored locally for offline access
+          {t('favorites_offline')}
         </Text>
       </View>
 
@@ -177,14 +175,14 @@ export default function FavoritesScreen() {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Ionicons name="star-outline" size={64} color={colors.border} />
-            <Text style={[styles.emptyTitle, { color: colors.text }]}>No favorites yet</Text>
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>{t('favorites_empty_title')}</Text>
             <Text style={[styles.emptyText, { color: colors.textDim }]}>
-              Go to a league and tap the ⭐ star icon on any team to save it here
+              {t('favorites_empty_text')}
             </Text>
             <View style={[styles.emptyHint, { backgroundColor: colors.cardLight }]}>
               <Ionicons name="navigate" size={16} color={colors.primary} />
               <Text style={[styles.emptyHintText, { color: colors.textDim }]}>
-                Leagues → Country → League → ⭐ Team
+                {t('favorites_empty_hint')}
               </Text>
             </View>
           </View>

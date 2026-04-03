@@ -18,6 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { auth } from '../src/firebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { useLanguage } from '../src/context/LanguageContext';
 
 const { height } = Dimensions.get('window');
 
@@ -31,6 +32,7 @@ const showAlert = (title: string, message: string) => {
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -39,22 +41,22 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     if (!email || !password || !confirmPassword) {
-      showAlert('Error', 'Please fill in all fields');
+      showAlert(t('error'), t('register_error_empty'));
       return;
     }
     
     if (password !== confirmPassword) {
-      showAlert('Error', 'Passwords do not match');
+      showAlert(t('error'), t('register_error_match'));
       return;
     }
 
     setIsLoading(true);
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      showAlert('Success', 'Account created successfully!');
+      showAlert(t('success'), t('register_success'));
       router.replace('/(tabs)/home');
     } catch (error: any) {
-      showAlert('Registration Error', error.message);
+      showAlert(t('register_error_title'), error.message);
     } finally {
       setIsLoading(false);
     }
@@ -90,8 +92,8 @@ export default function RegisterScreen() {
           </ImageBackground>
           
           <View style={styles.headerTextContainer}>
-            <Text style={styles.title}>Join Us</Text>
-            <Text style={styles.subtitle}>Create your new account</Text>
+            <Text style={styles.title}>{t('register_title')}</Text>
+            <Text style={styles.subtitle}>{t('register_subtitle')}</Text>
           </View>
         </View>
 
@@ -100,12 +102,12 @@ export default function RegisterScreen() {
           
           {/* Email Input */}
           <View style={styles.inputWrapper}>
-            <Text style={styles.label}>Email Address</Text>
+            <Text style={styles.label}>{t('register_email')}</Text>
             <View style={styles.inputContainer}>
               <Ionicons name="mail" size={20} color="#718096" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="name@example.com"
+                placeholder={t('login_email_placeholder')}
                 placeholderTextColor="#718096"
                 value={email}
                 onChangeText={setEmail}
@@ -117,7 +119,7 @@ export default function RegisterScreen() {
 
           {/* Password Input */}
           <View style={styles.inputWrapper}>
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>{t('register_password')}</Text>
             <View style={styles.inputContainer}>
               <Ionicons name="lock-closed" size={20} color="#718096" style={styles.inputIcon} />
               <TextInput
@@ -140,7 +142,7 @@ export default function RegisterScreen() {
 
           {/* Confirm Password Input */}
           <View style={styles.inputWrapper}>
-            <Text style={styles.label}>Confirm Password</Text>
+            <Text style={styles.label}>{t('register_confirm')}</Text>
             <View style={styles.inputContainer}>
               <Ionicons name="shield-checkmark" size={20} color="#718096" style={styles.inputIcon} />
               <TextInput
@@ -160,12 +162,12 @@ export default function RegisterScreen() {
               {isLoading ? (
                 <ActivityIndicator color="#FFFFFF" />
               ) : (
-                <Text style={styles.registerButtonText}>Create Account</Text>
+                <Text style={styles.registerButtonText}>{t('register_button')}</Text>
               )}
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.backButton} onPress={navigateToLogin} disabled={isLoading}>
-              <Text style={styles.backButtonText}>Back to Login</Text>
+              <Text style={styles.backButtonText}>{t('register_back')}</Text>
             </TouchableOpacity>
           </View>
 

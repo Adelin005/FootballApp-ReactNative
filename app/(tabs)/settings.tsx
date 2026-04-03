@@ -13,21 +13,21 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
-// Import Firebase auth if needed here, but keeping it generic as per the ui
 import { auth } from '../../src/firebaseConfig';
 import { signOut } from 'firebase/auth';
 import { useTheme } from '../../src/context/ThemeContext';
+import { useLanguage } from '../../src/context/LanguageContext';
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { isDarkMode, toggleTheme, colors } = useTheme();
+  const { t, locale } = useLanguage();
   const [deviceLanguage, setDeviceLanguage] = useState<string>('English (US)');
   const [greetingName, setGreetingName] = useState<string>('User');
 
   useFocusEffect(
     useCallback(() => {
-      // Refresh user's display name when settings screen is shown (e.g. returning from profile page)
       if (auth.currentUser) {
         setGreetingName(auth.currentUser.displayName || auth.currentUser.email?.split('@')[0] || 'User');
       }
@@ -35,10 +35,8 @@ export default function SettingsScreen() {
   );
 
   useEffect(() => {
-    // Initial fetch of language
     detectLanguage();
 
-    // Listen to AppState changes to detect if user returned from Settings and changed language
     const subscription = AppState.addEventListener('change', (nextAppState) => {
       if (nextAppState === 'active') {
         detectLanguage();
@@ -52,30 +50,28 @@ export default function SettingsScreen() {
 
   const detectLanguage = () => {
     try {
-      // Basic way to get device locale in RN without extra packages like expo-localization
-      const locale = Intl.DateTimeFormat().resolvedOptions().locale;
+      const loc = Intl.DateTimeFormat().resolvedOptions().locale;
       
-      // Map common locales to readable names
       const languageMap: Record<string, string> = {
         'en': 'English',
         'en-US': 'English (US)',
         'en-GB': 'English (UK)',
-        'ro': 'Romanian',
-        'ro-RO': 'Romanian',
-        'it': 'Italian',
-        'it-IT': 'Italian',
-        'es': 'Spanish',
-        'es-ES': 'Spanish',
-        'fr': 'French',
-        'fr-FR': 'French',
-        'de': 'German',
-        'de-DE': 'German',
+        'ro': 'Română',
+        'ro-RO': 'Română',
+        'it': 'Italiano',
+        'it-IT': 'Italiano',
+        'es': 'Español',
+        'es-ES': 'Español',
+        'fr': 'Français',
+        'fr-FR': 'Français',
+        'de': 'Deutsch',
+        'de-DE': 'Deutsch',
       };
       
-      if (locale && languageMap[locale]) {
-        setDeviceLanguage(languageMap[locale]);
-      } else if (locale) {
-        setDeviceLanguage(locale);
+      if (loc && languageMap[loc]) {
+        setDeviceLanguage(languageMap[loc]);
+      } else if (loc) {
+        setDeviceLanguage(loc);
       }
     } catch (e) {
       console.log('Language detection error:', e);
@@ -83,19 +79,18 @@ export default function SettingsScreen() {
   };
 
   const handleLanguagePress = () => {
-    // Prompt exactly as user requested: tell them they need to change it in OS settings
     Alert.alert(
-      'Change Language',
-      'Language is automatically synced with your device settings. Would you like to open device settings?',
+      t('settings_change_lang_title'),
+      t('settings_change_lang_msg'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('settings_cancel'), style: 'cancel' },
         { 
-          text: 'Open Settings', 
+          text: t('settings_open_settings'), 
           onPress: () => {
             if (Platform.OS === 'ios' || Platform.OS === 'android') {
               Linking.openSettings();
             } else {
-              alert('Please open your computer settings to change the language.');
+              alert(t('settings_change_lang_msg'));
             }
           } 
         }
@@ -108,11 +103,10 @@ export default function SettingsScreen() {
       if (auth.currentUser) {
         await signOut(auth);
       }
-      // Index handles routing based on auth state, but we can explicitly route to / if needed
       router.replace('/');
     } catch (error) {
       console.error('Logout error:', error);
-      Alert.alert('Error', 'Failed to log out.');
+      Alert.alert(t('error'), t('settings_logout_error'));
     }
   };
 
@@ -162,17 +156,16 @@ export default function SettingsScreen() {
     <View style={[styles.container, dynamicStyles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
-        {/* We can hide back button in a tab, or keep it if desired. The design showed one, but tabs generally don't navigate back. */}
-        <Text style={[styles.headerTitle, dynamicStyles.headerTitle]}>Settings</Text>
+        <Text style={[styles.headerTitle, dynamicStyles.headerTitle]}>{t('settings_title')}</Text>
       </View>
 
       {/* User Card */}
       <View style={[styles.userCard, dynamicStyles.userCard]}>
-        <Text style={[styles.greetingText, dynamicStyles.greetingText]}>Hello {greetingName}</Text>
+        <Text style={[styles.greetingText, dynamicStyles.greetingText]}>{t('settings_hello')} {greetingName}</Text>
       </View>
 
       {/* Account Section */}
-      <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle]}>ACCOUNT</Text>
+      <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle]}>{t('settings_account')}</Text>
       <View style={[styles.sectionContainer, dynamicStyles.sectionContainer]}>
         <TouchableOpacity 
           style={styles.row}
@@ -180,19 +173,19 @@ export default function SettingsScreen() {
         >
           <View style={styles.rowLeft}>
             <Ionicons name="person" size={20} color={colors.primary} style={styles.icon} />
-            <Text style={[styles.rowText, dynamicStyles.rowText]}>Profile Information</Text>
+            <Text style={[styles.rowText, dynamicStyles.rowText]}>{t('settings_profile')}</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color={colors.textDim} />
         </TouchableOpacity>
       </View>
 
       {/* Preferences Section */}
-      <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle]}>PREFERENCES</Text>
+      <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle]}>{t('settings_preferences')}</Text>
       <View style={[styles.sectionContainer, dynamicStyles.sectionContainer]}>
         <View style={[styles.row, styles.borderBottom, dynamicStyles.borderBottom]}>
           <View style={styles.rowLeft}>
             <Ionicons name="moon" size={20} color={colors.primary} style={styles.icon} />
-            <Text style={[styles.rowText, dynamicStyles.rowText]}>Dark Mode</Text>
+            <Text style={[styles.rowText, dynamicStyles.rowText]}>{t('settings_dark_mode')}</Text>
           </View>
           <Switch
             value={isDarkMode}
@@ -205,7 +198,7 @@ export default function SettingsScreen() {
         <TouchableOpacity style={styles.row} onPress={handleLanguagePress}>
           <View style={styles.rowLeft}>
             <Ionicons name="language" size={20} color={colors.primary} style={styles.icon} />
-            <Text style={[styles.rowText, dynamicStyles.rowText]}>Language</Text>
+            <Text style={[styles.rowText, dynamicStyles.rowText]}>{t('settings_language')}</Text>
           </View>
           <View style={styles.rowRight}>
             <Text style={[styles.valueText, dynamicStyles.valueText]}>{deviceLanguage}</Text>
@@ -216,11 +209,11 @@ export default function SettingsScreen() {
 
       {/* Log Out Button */}
       <TouchableOpacity style={[styles.logoutButton, dynamicStyles.logoutButton]} onPress={handleLogOut}>
-        <Text style={styles.logoutText}>Log Out</Text>
+        <Text style={styles.logoutText}>{t('settings_logout')}</Text>
       </TouchableOpacity>
 
       {/* Version Info */}
-      <Text style={[styles.versionText, { color: colors.textDim }]}>Version 4.12.0 (Build 829)</Text>
+      <Text style={[styles.versionText, { color: colors.textDim }]}>{t('settings_version')}</Text>
     </View>
   );
 }
