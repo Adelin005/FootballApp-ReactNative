@@ -1,6 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { auth } from '../firebaseConfig';
 
-const FAVORITES_KEY = '@football_favorites';
+const getFavoritesKey = () => {
+  const userId = auth.currentUser?.uid;
+  return userId ? `@football_favorites_${userId}` : '@football_favorites_anonymous';
+};
 
 export interface FavoriteTeam {
   teamId: string;
@@ -21,7 +25,7 @@ export interface FavoriteTeam {
 // ─── Get all favorites ───────────────────────────────────
 export const getFavorites = async (): Promise<FavoriteTeam[]> => {
   try {
-    const json = await AsyncStorage.getItem(FAVORITES_KEY);
+    const json = await AsyncStorage.getItem(getFavoritesKey());
     if (json) {
       return JSON.parse(json);
     }
@@ -45,7 +49,7 @@ export const addFavorite = async (team: FavoriteTeam): Promise<void> => {
     // Don't add duplicates
     if (favorites.some((f) => f.teamId === team.teamId)) return;
     favorites.push({ ...team, savedAt: Date.now() });
-    await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    await AsyncStorage.setItem(getFavoritesKey(), JSON.stringify(favorites));
   } catch (err) {
     console.error('addFavorite error:', err);
   }
@@ -56,7 +60,7 @@ export const removeFavorite = async (teamId: string): Promise<void> => {
   try {
     const favorites = await getFavorites();
     const updated = favorites.filter((f) => f.teamId !== teamId);
-    await AsyncStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
+    await AsyncStorage.setItem(getFavoritesKey(), JSON.stringify(updated));
   } catch (err) {
     console.error('removeFavorite error:', err);
   }
