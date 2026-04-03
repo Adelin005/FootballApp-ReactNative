@@ -78,7 +78,7 @@ export default function RegisterScreen() {
         {/* Top Header with Image */}
         <View style={styles.imageContainer}>
           <ImageBackground 
-            source={require('../assets/images/stadium_background.png')} 
+            source={require('../assets/images/stadium_background.jpg')} 
             style={styles.backgroundImage}
             resizeMode="cover"
           >

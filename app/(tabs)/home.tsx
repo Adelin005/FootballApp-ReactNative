@@ -32,7 +32,7 @@ export default function HomeTabScreen() {
       {/* Background Image & Gradient */}
       <View style={StyleSheet.absoluteFill}>
         <ImageBackground
-          source={require('../../assets/images/stadium_background.png')}
+          source={require('../../assets/images/stadium_background.jpg')}
           style={{ width: '100%', height: '100%' }}
           resizeMode="cover"
         >
