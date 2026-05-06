@@ -12,22 +12,22 @@ const api = axios.create({
 
 // ─── Storage Keys ────────────────────────────────────────
 // Meta cache = countries + all leagues grouped by country code (refreshed once/day)
-const META_CACHE_KEY = 'fb_meta_v1';
+const META_CACHE_KEY = 'fb_meta_v3';
 // Standings cached per league (refreshed once/day)
-const standingsKey = (leagueId: string) => `fb_standings_v1_${leagueId}`;
+const standingsKey = (leagueId: string) => `fb_standings_v3_${leagueId}`;
 
 // ─── Date helper ─────────────────────────────────────────
 const todayStr = () => new Date().toISOString().slice(0, 10); // "2026-05-05"
 
 // ─── Season helper ───────────────────────────────────────
 // API-Football uses the year the season STARTED.
-// 2024-25 season → season=2024.  Season starts in July/Aug.
+// 2025-26 season → season=2025. Season starts in July/Aug.
 const getCurrentSeason = (): number => {
   const month = new Date().getMonth() + 1; // 1-12
   const year = new Date().getFullYear();
-  // Before July → still in season that started 2 years ago relative to current year
-  // e.g. May 2026 → season 2024
-  return month >= 7 ? year : year - 2;
+  // Before July → we are in the second half of the season that started last year
+  // e.g. May 2026 → season 2025
+  return month >= 7 ? year : year - 1;
 };
 
 // ─── Major league names (for "important" flag) ───────────
@@ -191,44 +191,62 @@ export const getTeamsByLeague = async (leagueId: string): Promise<any[]> => {
     console.warn('AsyncStorage read error (standings):', e);
   }
 
-  // 2. Cache miss → fetch from API
-  const season = getCurrentSeason();
-  console.log(`[FootballAPI] Fetching standings for league ${leagueId}, season ${season}...`);
+  // 2. Fetch from API (with fallback for plan limits)
+  let season = getCurrentSeason();
+  let teams: any[] = [];
+  let success = false;
 
-  try {
-    const res = await api.get('/standings', {
-      params: { league: leagueId, season },
-    });
+  console.log(`[FootballAPI] Fetching standings for league ${leagueId}...`);
 
-    const standingsGroups: any[] = res.data?.response?.[0]?.league?.standings || [];
-    // Use first group (handles group-stage leagues too)
-    const table: any[] = standingsGroups.length > 0 ? standingsGroups[0] : [];
+  // Try current season, fallback to previous if plan restricted
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      console.log(`[FootballAPI] Attempting season ${season}...`);
+      const res = await api.get('/standings', {
+        params: { league: leagueId, season },
+      });
 
-    const teams = table.map((entry: any) => ({
-      team: {
-        id: String(entry.team?.id || ''),
-        name: entry.team?.name || 'Unknown',
-      },
-      position: entry.rank,
-      win: entry.all?.win ?? 0,
-      draw: entry.all?.draw ?? 0,
-      loss: entry.all?.lose ?? 0,
-      points: entry.points ?? 0,
-      goals_scored: entry.all?.goals?.for ?? 0,
-      goals_conceded: entry.all?.goals?.against ?? 0,
-      note: entry.description || null,
-    }));
+      // Check for plan error in response
+      const planError = res.data?.errors?.plan;
+      if (planError && planError.includes('Free plans')) {
+        console.warn(`[FootballAPI] Plan restricted for season ${season}. Retrying with ${season - 1}...`);
+        season--;
+        continue;
+      }
 
-    // Persist standings
+      const standingsGroups: any[] = res.data?.response?.[0]?.league?.standings || [];
+      const table: any[] = standingsGroups.length > 0 ? standingsGroups[0] : [];
+
+      teams = table.map((entry: any) => ({
+        team: {
+          id: String(entry.team?.id || ''),
+          name: entry.team?.name || 'Unknown',
+        },
+        position: entry.rank,
+        win: entry.all?.win ?? 0,
+        draw: entry.all?.draw ?? 0,
+        loss: entry.all?.lose ?? 0,
+        points: entry.points ?? 0,
+        goals_scored: entry.all?.goals?.for ?? 0,
+        goals_conceded: entry.all?.goals?.against ?? 0,
+        note: entry.description || null,
+      }));
+
+      success = true;
+      break; 
+    } catch (err: any) {
+      console.error(`getTeamsByLeague error (league ${leagueId}, season ${season}):`, err?.message);
+      season--; // Try previous season on network/other error too?
+    }
+  }
+
+  if (success) {
     try {
       await AsyncStorage.setItem(cacheKey, JSON.stringify({ date: today, teams }));
     } catch (e) {
       console.warn('AsyncStorage write error (standings):', e);
     }
-
-    return teams;
-  } catch (err: any) {
-    console.error(`getTeamsByLeague error (league ${leagueId}):`, err?.message);
-    return [];
   }
+
+  return teams;
 };

@@ -9,7 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   getFavorites,
@@ -20,6 +20,7 @@ import { useTheme } from '../../src/context/ThemeContext';
 import { useLanguage } from '../../src/context/LanguageContext';
 
 export default function FavoritesScreen() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors, isDarkMode } = useTheme();
   const { t } = useLanguage();
@@ -59,6 +60,17 @@ export default function FavoritesScreen() {
     setFavorites((prev) => prev.filter((f) => f.teamId !== team.teamId));
   };
 
+  const navigateToLeague = (team: FavoriteTeam) => {
+    if (!team.leagueId) return;
+    router.push({
+      pathname: '/league-teams',
+      params: {
+        leagueId: team.leagueId,
+        leagueName: team.leagueName,
+      },
+    });
+  };
+
   const renderFavoriteItem = ({ item }: { item: FavoriteTeam }) => {
     const goalDiff = 
       item.goalsScored != null && item.goalsConceded != null
@@ -67,7 +79,11 @@ export default function FavoritesScreen() {
     const goalDiffStr = goalDiff != null ? (goalDiff >= 0 ? `+${goalDiff}` : `${goalDiff}`) : '';
 
     return (
-      <View style={[styles.teamCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      <TouchableOpacity 
+        style={[styles.teamCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+        onPress={() => navigateToLeague(item)}
+        activeOpacity={0.7}
+      >
         {/* Team Icon */}
         <View style={[styles.teamIconContainer, { backgroundColor: colors.cardLight }]}>
           <Ionicons name="shield" size={28} color={colors.primary} />
@@ -137,7 +153,7 @@ export default function FavoritesScreen() {
         >
           <Ionicons name="star" size={24} color={colors.accent} />
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     );
   };
 
