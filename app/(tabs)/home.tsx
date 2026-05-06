@@ -16,7 +16,7 @@ export default function HomeTabScreen() {
   const { t } = useLanguage();
 
   const navigateToProfile = () => {
-    router.push('/profile-info');
+    router.navigate('/profile-info');
   };
 
   return (
@@ -42,8 +42,12 @@ export default function HomeTabScreen() {
 
         <Text style={styles.headerTitle}>{t('home_title')}</Text>
 
-        <TouchableOpacity style={styles.iconButton} onPress={navigateToProfile}>
-          <Ionicons name="person-circle-outline" size={28} color="#E2E8F0" />
+        <TouchableOpacity 
+          style={styles.iconButton} 
+          onPress={navigateToProfile}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="person-circle" size={32} color="#E2E8F0" />
         </TouchableOpacity>
       </View>
 

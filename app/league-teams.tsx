@@ -48,6 +48,10 @@ export default function LeagueTeamsScreen() {
   };
 
   const loadTeams = async () => {
+    if (!leagueId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(false);
     try {
@@ -119,7 +123,10 @@ export default function LeagueTeamsScreen() {
     };
 
     return (
-      <View style={[styles.teamCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      <View style={[
+        styles.teamCard, 
+        { backgroundColor: colors.card, borderColor: colors.border },
+      ]}>
         {/* Position */}
         <View style={[styles.positionBadge, { borderColor: getMedalColor(position), backgroundColor: colors.backgroundCenter }]}>
           <Text style={[styles.positionText, { color: getMedalColor(position) }]}>

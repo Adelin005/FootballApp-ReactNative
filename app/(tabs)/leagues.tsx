@@ -87,9 +87,6 @@ export default function LeaguesTabScreen() {
       />
       <View style={styles.countryInfo}>
         <Text style={[styles.countryName, { color: colors.text }]}>{item.name}</Text>
-        <Text style={[styles.countryMeta, { color: colors.textDim }]}>
-          {item.championships} {item.championships !== 1 ? t('leagues_leagues') : t('leagues_league')} · {item.teams} {t('leagues_teams')}
-        </Text>
       </View>
       <Ionicons name="chevron-forward" size={20} color={colors.textDim} />
     </TouchableOpacity>
