@@ -25,9 +25,10 @@ export default function LeagueTeamsScreen() {
   const { colors, isDarkMode } = useTheme();
   const { t } = useLanguage();
   
-  const { leagueId, leagueName } = useLocalSearchParams<{
+  const { leagueId, leagueName, highlightTeamId } = useLocalSearchParams<{
     leagueId: string;
     leagueName: string;
+    highlightTeamId?: string;
   }>();
 
   const [teams, setTeams] = useState<any[]>([]);
@@ -114,6 +115,7 @@ export default function LeagueTeamsScreen() {
     const draws = item.draw ?? '-';
     const losses = item.loss ?? '-';
     const isFav = favoriteIds.has(teamId);
+    const isHighlighted = highlightTeamId && String(teamId) === String(highlightTeamId);
 
     const getMedalColor = (pos: number) => {
       if (pos === 1) return '#FFD700'; // Gold
@@ -125,7 +127,11 @@ export default function LeagueTeamsScreen() {
     return (
       <View style={[
         styles.teamCard, 
-        { backgroundColor: colors.card, borderColor: colors.border },
+        { 
+          backgroundColor: colors.card, 
+          borderColor: isHighlighted ? colors.primary : colors.border,
+          borderWidth: isHighlighted ? 2 : 1,
+        },
       ]}>
         {/* Position */}
         <View style={[styles.positionBadge, { borderColor: getMedalColor(position), backgroundColor: colors.backgroundCenter }]}>

@@ -71,6 +71,9 @@ export const en = {
   login_footer_end: '.',
   login_error_empty: 'Please enter email and password',
   login_error_title: 'Login Error',
+  login_forgot_empty: 'Please enter your email address to reset password',
+  login_forgot_success: 'Password reset link sent! Check your email.',
+  login_success: 'Logged in successfully!',
   error: 'Error',
 
   // Register screen
@@ -208,6 +211,9 @@ export const ro: Record<TranslationKeys, string> = {
   login_footer_end: '.',
   login_error_empty: 'Te rog introdu emailul și parola',
   login_error_title: 'Eroare Conectare',
+  login_forgot_empty: 'Te rog introdu emailul pentru a reseta parola',
+  login_forgot_success: 'Link de resetare trimis! Verifică-ți emailul.',
+  login_success: 'Te-ai conectat cu succes!',
   error: 'Eroare',
 
   // Register screen

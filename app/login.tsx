@@ -17,7 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { auth } from '../src/firebaseConfig';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { useLanguage } from '../src/context/LanguageContext';
 
 const { height } = Dimensions.get('window');
@@ -46,7 +46,24 @@ export default function LoginScreen() {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      showAlert(t('success') || 'Success', t('login_success'));
       router.replace('/(tabs)/home');
+    } catch (error: any) {
+      showAlert(t('login_error_title'), error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      showAlert(t('login_error_title'), t('login_forgot_empty'));
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      showAlert(t('success') || 'Success', t('login_forgot_success'));
     } catch (error: any) {
       showAlert(t('login_error_title'), error.message);
     } finally {
@@ -113,7 +130,7 @@ export default function LoginScreen() {
           <View style={styles.inputWrapper}>
             <View style={styles.passwordLabelContainer}>
               <Text style={styles.label}>{t('login_password')}</Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={handleForgotPassword}>
                 <Text style={styles.forgotPasswordText}>{t('login_forgot')}</Text>
               </TouchableOpacity>
             </View>

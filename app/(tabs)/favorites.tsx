@@ -9,7 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   getFavorites,
@@ -20,7 +20,7 @@ import { useTheme } from '../../src/context/ThemeContext';
 import { useLanguage } from '../../src/context/LanguageContext';
 
 export default function FavoritesScreen() {
-
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors, isDarkMode } = useTheme();
   const { t } = useLanguage();
@@ -70,8 +70,21 @@ export default function FavoritesScreen() {
     const goalDiffStr = goalDiff != null ? (goalDiff >= 0 ? `+${goalDiff}` : `${goalDiff}`) : '';
 
     return (
-      <View 
+      <TouchableOpacity 
         style={[styles.teamCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+        onPress={() => {
+          if (item.leagueId) {
+            router.push({
+              pathname: '/league-teams',
+              params: { 
+                leagueId: item.leagueId, 
+                leagueName: item.leagueName,
+                highlightTeamId: item.teamId 
+              },
+            });
+          }
+        }}
+        activeOpacity={0.7}
       >
         {/* Team Icon */}
         <View style={[styles.teamIconContainer, { backgroundColor: colors.cardLight }]}>
@@ -142,7 +155,7 @@ export default function FavoritesScreen() {
         >
           <Ionicons name="star" size={24} color={colors.accent} />
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     );
   };
 

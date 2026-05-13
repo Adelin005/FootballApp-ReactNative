@@ -156,16 +156,26 @@ export default function SettingsScreen() {
         <Text style={[styles.greetingText, dynamicStyles.greetingText]}>{t('settings_hello')} {greetingName}</Text>
       </View>
 
-      {/* Account Section */}
       <Text style={[styles.sectionTitle, dynamicStyles.sectionTitle]}>{t('settings_account')}</Text>
       <View style={[styles.sectionContainer, dynamicStyles.sectionContainer]}>
         <TouchableOpacity 
-          style={styles.row}
+          style={[styles.row, styles.borderBottom, dynamicStyles.borderBottom]}
           onPress={() => router.push('/profile-info')}
         >
           <View style={styles.rowLeft}>
             <Ionicons name="person" size={20} color={colors.primary} style={styles.icon} />
             <Text style={[styles.rowText, dynamicStyles.rowText]}>{t('settings_profile')}</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={colors.textDim} />
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.row}
+          onPress={() => router.push('/profile-info')}
+        >
+          <View style={styles.rowLeft}>
+            <Ionicons name="lock-closed" size={20} color={colors.primary} style={styles.icon} />
+            <Text style={[styles.rowText, dynamicStyles.rowText]}>{t('profile_change_pass') || 'Change Password'}</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color={colors.textDim} />
         </TouchableOpacity>
